@@ -1,15 +1,37 @@
-let canvas;
-let ctx;
-const CANVAS_SIZE = 400;
-const CENTER_X = CANVAS_SIZE / 2;
-const CENTER_Y = CANVAS_SIZE / 2;
-const SCALE = 30;
+/**
+ * ============================================
+ * КОНСТАНТЫ И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+ * ============================================
+ */
+const CANVAS_CONFIG = {
+    SIZE: 400,
+    CENTER_X: 200,
+    CENTER_Y: 200,
+    SCALE: 30
+};
 
+const VALIDATION_RULES = {
+    X: { MIN: -3, MAX: 3 },
+    Y: { MIN: -5, MAX: 3 },
+    R: { VALID_VALUES: [1, 1.5, 2, 2.5, 3] }
+};
+
+let canvas, ctx;
+
+/**
+ * ============================================
+ * РИСОВАНИЕ КООРДИНАТНОЙ ПЛОСКОСТИ
+ * ============================================
+ */
+
+/**
+ * Инициализация и отрисовка координатной плоскости
+ */
 function drawCoordinatePlane() {
     canvas = document.getElementById('coordinatePlane');
     ctx = canvas.getContext('2d');
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.clearRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE);
 
     drawGrid();
     drawAxes();
@@ -17,93 +39,121 @@ function drawCoordinatePlane() {
     drawPoints();
 }
 
+/**
+ * Рисование сетки
+ */
 function drawGrid() {
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
 
-    for (let i = 0; i <= CANVAS_SIZE; i += SCALE) {
+    for (let i = 0; i <= CANVAS_CONFIG.SIZE; i += CANVAS_CONFIG.SCALE) {
+        // Вертикальные линии
         ctx.moveTo(i, 0);
-        ctx.lineTo(i, CANVAS_SIZE);
+        ctx.lineTo(i, CANVAS_CONFIG.SIZE);
+        // Горизонтальные линии
         ctx.moveTo(0, i);
-        ctx.lineTo(CANVAS_SIZE, i);
+        ctx.lineTo(CANVAS_CONFIG.SIZE, i);
     }
     ctx.stroke();
 }
 
+/**
+ * Рисование осей координат
+ */
 function drawAxes() {
+    // Рисуем оси
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.beginPath();
 
-    ctx.moveTo(0, CENTER_Y);
-    ctx.lineTo(CANVAS_SIZE, CENTER_Y);
+    // Ось X
+    ctx.moveTo(0, CANVAS_CONFIG.CENTER_Y);
+    ctx.lineTo(CANVAS_CONFIG.SIZE, CANVAS_CONFIG.CENTER_Y);
 
-    ctx.moveTo(CENTER_X, 0);
-    ctx.lineTo(CENTER_X, CANVAS_SIZE);
+    // Ось Y
+    ctx.moveTo(CANVAS_CONFIG.CENTER_X, 0);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.SIZE);
 
     ctx.stroke();
 
-    ctx.fillStyle = '#000000';
-    ctx.font = '12px Arial';
-
-    for (let i = -6; i <= 6; i++) {
-        if (i !== 0) {
-            const x = CENTER_X + i * SCALE;
-            ctx.fillText(i.toString(), x - 5, CENTER_Y + 15);
-        }
-    }
-
-    for (let i = -6; i <= 6; i++) {
-        if (i !== 0) {
-            const y = CENTER_Y - i * SCALE;
-            ctx.fillText(i.toString(), CENTER_X + 5, y + 5);
-        }
-    }
-
-    ctx.fillText('0', CENTER_X + 5, CENTER_Y + 15);
-    ctx.fillText('X', CANVAS_SIZE - 15, CENTER_Y + 15);
-    ctx.fillText('Y', CENTER_X + 5, 15);
+    // Подписи осей
+    drawAxisLabels();
 }
 
-function drawArea() {
-    const rSelect = document.getElementById('r');
-    const r = parseFloat(rSelect.value);
+/**
+ * Рисование подписей на осях
+ */
+function drawAxisLabels() {
+    ctx.fillStyle = '#000000';
+    ctx.font = '10px Arial';
 
-    if (!r || r <= 0) return;
+    // Подписи на оси X
+    for (let i = -6; i <= 6; i++) {
+        if (i !== 0) {
+            const x = CANVAS_CONFIG.CENTER_X + i * CANVAS_CONFIG.SCALE;
+            ctx.fillText(i.toString(), x - 5, CANVAS_CONFIG.CENTER_Y + 15);
+        }
+    }
+
+    // Подписи на оси Y
+    for (let i = -6; i <= 6; i++) {
+        if (i !== 0) {
+            const y = CANVAS_CONFIG.CENTER_Y - i * CANVAS_CONFIG.SCALE;
+            ctx.fillText(i.toString(), CANVAS_CONFIG.CENTER_X + 5, y + 5);
+        }
+    }
+
+    // Подписи осей
+    ctx.fillText('0', CANVAS_CONFIG.CENTER_X + 5, CANVAS_CONFIG.CENTER_Y + 15);
+    ctx.fillText('X', CANVAS_CONFIG.SIZE - 15, CANVAS_CONFIG.CENTER_Y + 15);
+    ctx.fillText('Y', CANVAS_CONFIG.CENTER_X + 5, 15);
+}
+
+/**
+ * Рисование области попадания
+ */
+function drawArea() {
+    const r = getCurrentRadius();
+    if (!r) return;
 
     ctx.fillStyle = 'rgba(0, 100, 255, 0.3)';
     ctx.strokeStyle = 'blue';
     ctx.lineWidth = 2;
 
-    ctx.beginPath();
-
     const r2 = r / 2;
 
-    ctx.moveTo(CENTER_X, CENTER_Y);
-    ctx.lineTo(CENTER_X + r2 * SCALE, CENTER_Y);
-    ctx.lineTo(CENTER_X + r2 * SCALE, CENTER_Y - r * SCALE);
-    ctx.lineTo(CENTER_X, CENTER_Y - r * SCALE);
+    // Прямоугольник (первая четверть)
+    ctx.beginPath();
+    ctx.moveTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X + r * CANVAS_CONFIG.SCALE, CANVAS_CONFIG.CENTER_Y);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X + r * CANVAS_CONFIG.SCALE, CANVAS_CONFIG.CENTER_Y - r * CANVAS_CONFIG.SCALE);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y - r * CANVAS_CONFIG.SCALE);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
+    // Четверть круга (вторая четверть)
     ctx.beginPath();
-    ctx.arc(CENTER_X, CENTER_Y, r2 * SCALE, Math.PI / 2, Math.PI);
-    ctx.lineTo(CENTER_X, CENTER_Y);
+    ctx.arc(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y, r2 * CANVAS_CONFIG.SCALE, 0, Math.PI / 2);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
+    // Треугольник (третья четверть)
     ctx.beginPath();
-    ctx.moveTo(CENTER_X, CENTER_Y);
-    ctx.lineTo(CENTER_X - r2 * SCALE, CENTER_Y - r2 * SCALE);
-    ctx.lineTo(CENTER_X, CENTER_Y - r2 * SCALE);
+    ctx.moveTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X, CANVAS_CONFIG.CENTER_Y + r * CANVAS_CONFIG.SCALE);
+    ctx.lineTo(CANVAS_CONFIG.CENTER_X - r2 * CANVAS_CONFIG.SCALE, CANVAS_CONFIG.CENTER_Y);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 }
 
+/**
+ * Рисование всех точек из таблицы результатов
+ */
 function drawPoints() {
     const table = document.getElementById('resultsTable');
     const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
@@ -120,9 +170,12 @@ function drawPoints() {
     }
 }
 
+/**
+ * Рисование одной точки
+ */
 function drawPoint(x, y, isHit) {
-    const canvasX = CENTER_X + x * SCALE;
-    const canvasY = CENTER_Y - y * SCALE;
+    const canvasX = CANVAS_CONFIG.CENTER_X + x * CANVAS_CONFIG.SCALE;
+    const canvasY = CANVAS_CONFIG.CENTER_Y - y * CANVAS_CONFIG.SCALE;
 
     ctx.beginPath();
     ctx.arc(canvasX, canvasY, 3, 0, 2 * Math.PI);
@@ -133,93 +186,206 @@ function drawPoint(x, y, isHit) {
     ctx.stroke();
 }
 
-function canvasClick(event) {
-    const rSelect = document.getElementById('r');
-    const r = rSelect.value;
+/**
+ * ============================================
+ * ВАЛИДАЦИЯ ФОРМЫ
+ * ============================================
+ */
 
-    if (!r || r === '') {
+/**
+ * Проверка корректности числа
+ */
+function isValidNumber(value) {
+    const numberPattern = /^-?\d+(\.\d+)?$/;
+    return numberPattern.test(value) && !isNaN(parseFloat(value));
+}
+
+/**
+ * Валидация координаты X
+ */
+function validateX() {
+    const xInput = document.getElementById('x');
+    const xError = document.getElementById('x-error');
+    const xValue = xInput.value.trim();
+
+    if (xValue === '') {
+        xError.textContent = 'Введите значение X';
+        return false;
+    }
+
+    if (!isValidNumber(xValue)) {
+        xError.textContent = 'X должен быть числом (например: 2.5, -1.3)';
+        return false;
+    }
+
+    const x = parseFloat(xValue);
+    if (x < VALIDATION_RULES.X.MIN || x > VALIDATION_RULES.X.MAX) {
+        xError.textContent = `X должен быть числом от ${VALIDATION_RULES.X.MIN} до ${VALIDATION_RULES.X.MAX}`;
+        return false;
+    }
+
+    xError.textContent = '';
+    return true;
+}
+
+/**
+ * Валидация координаты Y
+ */
+function validateY() {
+    const yHidden = document.getElementById('y-hidden');
+    const yError = document.getElementById('y-error');
+    const yValue = yHidden.value;
+
+    if (yValue === '') {
+        yError.textContent = 'Выберите значение Y';
+        return false;
+    }
+
+    const y = parseFloat(yValue);
+    if (isNaN(y) || y < VALIDATION_RULES.Y.MIN || y > VALIDATION_RULES.Y.MAX) {
+        yError.textContent = `Y должен быть числом от ${VALIDATION_RULES.Y.MIN} до ${VALIDATION_RULES.Y.MAX}`;
+        return false;
+    }
+
+    yError.textContent = '';
+    return true;
+}
+
+/**
+ * Валидация радиуса R
+ */
+function validateR() {
+    const rError = document.getElementById('r-error');
+    const checkedRRadio = document.querySelector('input[name="r"]:checked');
+
+    if (!checkedRRadio) {
+        rError.textContent = 'Выберите радиус R';
+        return false;
+    }
+
+    const r = parseFloat(checkedRRadio.value);
+    if (!VALIDATION_RULES.R.VALID_VALUES.includes(r)) {
+        rError.textContent = 'Выберите валидный радиус R';
+        return false;
+    }
+
+    rError.textContent = '';
+    return true;
+}
+
+/**
+ * Основная функция валидации формы
+ */
+function validateForm() {
+    const isXValid = validateX();
+    const isYValid = validateY();
+    const isRValid = validateR();
+
+    return isXValid && isYValid && isRValid;
+}
+
+/**
+ * ============================================
+ * ОБРАБОТКА КЛИКОВ ПО ХОЛСТУ
+ * ============================================
+ */
+
+/**
+ * Обработка клика по координатной плоскости
+ */
+function canvasClick(event) {
+    if (!getCurrentRadius()) {
         alert('Сначала выберите радиус R!');
         return;
     }
 
-    const rect = canvas.getBoundingClientRect();
-    const canvasX = event.clientX - rect.left;
-    const canvasY = event.clientY - rect.top;
+    const coords = getClickCoordinates(event);
 
-    const x = (canvasX - CENTER_X) / SCALE;
-    const y = -(canvasY - CENTER_Y) / SCALE;
-
-    if (x < -5 || x > 3 || y < -3 || y > 5) {
+    if (!isCoordinateInRange(coords.x, VALIDATION_RULES.X) ||
+        !isCoordinateInRange(coords.y, VALIDATION_RULES.Y)) {
         alert('Точка находится вне допустимого диапазона!');
         return;
     }
 
-    document.getElementById('y').value = y.toFixed(2);
-
-    const xRadios = document.getElementsByName('x');
-    let closestRadio = xRadios[0];
-    let minDistance = Math.abs(parseFloat(xRadios[0].value) - x);
-
-    for (let i = 1; i < xRadios.length; i++) {
-        const distance = Math.abs(parseFloat(xRadios[i].value) - x);
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestRadio = xRadios[i];
-        }
-    }
-
-    closestRadio.checked = true;
-
-    document.getElementById('pointForm').submit();
+    setFormValues(coords.x, coords.y);
+    submitForm();
 }
 
-function validateForm() {
-    const xRadios = document.getElementsByName('x');
-    const yInput = document.getElementById('y');
-    const rSelect = document.getElementById('r');
+/**
+ * Получение координат клика
+ */
+function getClickCoordinates(event) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = event.clientX - rect.left;
+    const canvasY = event.clientY - rect.top;
 
-    let isValid = true;
+    const x = (canvasX - CANVAS_CONFIG.CENTER_X) / CANVAS_CONFIG.SCALE;
+    const y = -(canvasY - CANVAS_CONFIG.CENTER_Y) / CANVAS_CONFIG.SCALE;
 
-    let xSelected = false;
-    for (let radio of xRadios) {
-        if (radio.checked) {
-            xSelected = true;
-            break;
-        }
-    }
-
-    if (!xSelected) {
-        alert('Выберите координату X');
-        isValid = false;
-    }
-
-    const yValue = yInput.value.trim();
-    const yError = document.getElementById('y-error');
-
-    if (yValue === '') {
-        yError.textContent = 'Введите значение Y';
-        isValid = false;
-    } else {
-        const y = parseFloat(yValue);
-        if (isNaN(y) || y < -3 || y > 5) {
-            yError.textContent = 'Y должен быть числом от -3 до 5';
-            isValid = false;
-        } else {
-            yError.textContent = '';
-        }
-    }
-
-    const rError = document.getElementById('r-error');
-    if (rSelect.value === '') {
-        rError.textContent = 'Выберите радиус R';
-        isValid = false;
-    } else {
-        rError.textContent = '';
-    }
-
-    return isValid;
+    return { x, y };
 }
 
+/**
+ * Проверка, находится ли координата в допустимом диапазоне
+ */
+function isCoordinateInRange(value, rule) {
+    return value >= rule.MIN && value <= rule.MAX;
+}
+
+/**
+ * Установка значений в форму
+ */
+function setFormValues(x, y) {
+    document.getElementById('x').value = x.toFixed(2);
+    document.getElementById('y-hidden').value = y.toFixed(2);
+//    selectYButton(Math.round(y));
+}
+
+///** Стоит ли, главное не забыть
+// * Выбор кнопки Y
+// */
+//function selectYButton(yValue) {
+//    const yButtons = document.querySelectorAll('.y-btn');
+//    yButtons.forEach(btn => btn.classList.remove('selected'));
+//
+//    const targetButton = document.querySelector(`.y-btn[data-value="${yValue}"]`);
+//    if (targetButton) {
+//        targetButton.classList.add('selected');
+//        document.getElementById('y-hidden').value = yValue;
+//    }
+//}
+
+/**
+ * Отправка формы
+ */
+function submitForm() {
+    const form = document.getElementById('pointForm');
+    if (form.requestSubmit) {
+        form.requestSubmit();
+    } else {
+        if (validateForm()) {
+            form.submit();
+        }
+    }
+}
+
+/**
+ * ============================================
+ * ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+ * ============================================
+ */
+
+/**
+ * Получение текущего значения радиуса
+ */
+function getCurrentRadius() {
+    const checkedRRadio = document.querySelector('input[name="r"]:checked');
+    return checkedRRadio ? parseFloat(checkedRRadio.value) : null;
+}
+
+/**
+ * Очистка результатов
+ */
 function clearResults() {
     fetch('controller?action=clear', {
         method: 'POST'
@@ -228,27 +394,43 @@ function clearResults() {
     });
 }
 
+/**
+ * Восстановление данных формы из URL параметров
+ */
 function restoreFormData() {
     const urlParams = new URLSearchParams(window.location.search);
 
+    // Восстановление X
     const x = urlParams.get('x');
     if (x) {
-        const radio = document.querySelector(`input[name="x"][value="${x}"]`);
-        if (radio) radio.checked = true;
+        document.getElementById('x').value = x;
     }
 
+    // Восстановление Y
     const y = urlParams.get('y');
     if (y) {
-        document.getElementById('y').value = y;
+        selectYButton(y);
     }
 
+    // Восстановление R
     const r = urlParams.get('r');
     if (r) {
-        document.getElementById('r').value = r;
+        const radio = document.querySelector(`input[name="r"][value="${r}"]`);
+        if (radio) radio.checked = true;
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+/**
+ * ============================================
+ * ИНИЦИАЛИЗАЦИЯ
+ * ============================================
+ */
+
+/**
+ * Инициализация обработчиков событий
+ */
+function initEventListeners() {
+    // Обработчик отправки формы
     const form = document.getElementById('pointForm');
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -258,8 +440,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const rSelect = document.getElementById('r');
-    if (rSelect) {
-        rSelect.addEventListener('change', drawCoordinatePlane);
-    }
+    // Обработчики для кнопок Y
+    const yButtons = document.querySelectorAll('.y-btn');
+    yButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            yButtons.forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('y-hidden').value = this.dataset.value;
+            drawCoordinatePlane();
+        });
+    });
+
+    // Обработчики для радио-кнопок R
+    const rRadios = document.querySelectorAll('input[name="r"]');
+    rRadios.forEach(radio => {
+        radio.addEventListener('change', drawCoordinatePlane);
+    });
+}
+
+/**
+ * Инициализация приложения
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    initEventListeners();
 });
+
+/**
+ * Инициализация при загрузке страницы
+ */
+window.onload = function() {
+    drawCoordinatePlane();
+    restoreFormData();
+};

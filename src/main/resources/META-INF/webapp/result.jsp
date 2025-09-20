@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Результат проверки</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=<%= System.currentTimeMillis() %>">
 </head>
 <body>
     <div class="container">

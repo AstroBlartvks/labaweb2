@@ -42,3 +42,5 @@ toDo
 .gitignore
 /.idea
 /.idea/
+
+dependency-reduced-pom.xml

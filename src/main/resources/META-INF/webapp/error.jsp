@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Ошибка</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css?v=<%= System.currentTimeMillis() %>">
 </head>
 <body>
     <div class="container">
