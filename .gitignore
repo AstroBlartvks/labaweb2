@@ -1,0 +1,11 @@
+/Java/.idea
+/Java/target
+/Scala/.idea
+/Scala/target
+*.iws
+*.iml
+*.ipr
+/Scala/tomcat.8080
+/Java/tomcat.8080
+/Scala/dependency-reduced-pom.xml
+/Java/dependency-reduced-pom.xml
