@@ -1,0 +1,37 @@
+{
+  "001DFF": {
+    "sound": "goida.mp3",
+    "title": "Правильно!",
+    "text": "Партия гордится вами! Вы уничтожили заразу! +100 social credit",
+    "srcImage": "p100.png",
+    "type": 1
+  },
+  "00FF1D": {
+    "sound": "zov.mp3",
+    "title": "Близко!",
+    "text": "Партия гордится вами! Вы ударили по врагу! +15 social credit",
+    "srcImage": "p15.jpg",
+    "type": 1
+  },
+  "00FAFF": {
+    "sound": "pizdec.mp3",
+    "title": "Ужас, вы попали по союзнику!",
+    "text": "Партия недовольна вами! -50 social credit",
+    "srcImage": "m100.png",
+    "type": -1
+  },
+  "FF0019": {
+    "sound": "pizdec.mp3",
+    "title": "НЕТ, УЖАС!",
+    "text": "Партия ОЧЕНЬ НЕДОВОЛЬНА вами! -99999999 social credit",
+    "srcImage": "mPizdec.gif",
+    "type": -1
+  },
+  "default": {
+    "sound": "bing.mp3",
+    "title": "Бесполезно!",
+    "text": "Вы разбазариваете наш арсенал! -15 social credit",
+    "srcImage": "m15.jpg",
+    "type": -1
+  }
+}

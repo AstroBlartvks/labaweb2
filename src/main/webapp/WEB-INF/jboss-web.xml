@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web xmlns="http://www.jboss.com/xml/ns/javaee"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
+           http://www.jboss.org/j2ee/schema/jboss-web_14_1.xsd"
+           version="14.1">
+
+    <!-- Context root for the application -->
+    <context-root>/labWeb2</context-root>
+
+    <!-- Enable session clustering if needed -->
+    <replication-config>
+        <replication-trigger>SET</replication-trigger>
+    </replication-config>
+
+    <!-- Session configuration -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+</jboss-web>
